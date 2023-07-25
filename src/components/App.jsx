@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -14,7 +14,6 @@ const App = () => {
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleSearch = newQuery => {
@@ -25,7 +24,6 @@ const App = () => {
 
   const handleLoadMore = () => {
     setPage(prevPage => prevPage + 1);
-    setIsLoadingMore(true);
   };
 
   const handleItemClick = image => {
@@ -36,7 +34,7 @@ const App = () => {
     setSelectedImage(null);
   };
 
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     if (!query) return;
 
     setIsLoading(true);
@@ -55,17 +53,15 @@ const App = () => {
       }
 
       setIsLoading(false);
-      setIsLoadingMore(false);
     } catch (error) {
       console.error('Error fetching images:', error);
       setIsLoading(false);
-      setIsLoadingMore(false);
     }
-  };
+  }, [query, page]);
 
   useEffect(() => {
     fetchImages();
-  }, [query, page]);
+  }, [fetchImages]);
 
   return (
     <div className="app">
