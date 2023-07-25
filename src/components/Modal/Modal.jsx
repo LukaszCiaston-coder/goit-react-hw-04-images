@@ -1,41 +1,39 @@
-import React, { Component } from 'react';
+import { useEffect, useCallback } from 'react';
 import styles from './Modal.module.css';
 
-class Modal extends Component {
-  handleClose = event => {
+const Modal = ({ image, onClose }) => {
+  const handleClose = event => {
     if (event.target === event.currentTarget) {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
-  }
+  const handleKeyDown = useCallback(
+    event => {
+      if (event.code === 'Escape') {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  }
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
-  handleKeyDown = event => {
-    if (event.code === 'Escape') {
-      this.props.onClose();
-    }
-  };
-
-  render() {
-    const { image } = this.props;
-
-    return (
-      <div className={styles.overlay} onClick={this.handleClose}>
-        <div className={styles.modal}>
-          <button className={styles.closeButton} onClick={this.props.onClose}>
-            X
-          </button>
-          <img src={image.largeImageURL} alt="" />
-        </div>
+  return (
+    <div className={styles.overlay} onClick={handleClose}>
+      <div className={styles.modal}>
+        <button className={styles.closeButton} onClick={onClose}>
+          X
+        </button>
+        <img src={image.largeImageURL} alt="" />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default Modal;
